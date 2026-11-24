@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>年度考核暨面談紀錄</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f6f5; color: #233b39; font: 16px/1.65 system-ui, 'Microsoft JhengHei', sans-serif; }
+    main { max-width: 1060px; margin: auto; padding: 28px 20px; }
+    header { background: #234e4a; color: white; padding: 25px 30px; border-radius: 18px; }
+    h1 { font-size: 28px; margin: 0; }
+    header p { margin: 5px 0 0; color: #d8eae7; }
+    section { background: white; border: 1px solid #dce5e2; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    h2 { font-size: 20px; margin: 0 0 14px; }
+    label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    input, textarea { width: 100%; font: inherit; color: inherit; border: 1px solid #c8d5d1; border-radius: 8px; padding: 10px; background: #fff; }
+    textarea { min-height: 95px; resize: vertical; }
+    input:focus, textarea:focus { outline: 2px solid #6ca99e; outline-offset: 1px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .question { padding: 16px 0; border-top: 1px solid #e6ece9; }
+    .question h3 { font-size: 16px; margin: 0 0 10px; }
+    .super label { color: #356b64; }
+    .super textarea { background: #f5faf8; }
+    .bar { position: sticky; top: 0; z-index: 5; background: #f3f6f5ed; backdrop-filter: blur(4px); padding: 12px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button { border: 1px solid #b9cbc5; border-radius: 8px; padding: 9px 14px; background: white; color: #234e4a; font: 600 14px system-ui, 'Microsoft JhengHei'; cursor: pointer; transition: 0.15s; }
+    button:hover:not(:disabled) { background: #edf4f1; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button.primary { background: #234e4a; color: white; border-color: #234e4a; }
+    button.primary:hover:not(:disabled) { background: #1a3b38; }
+    button.cloud { background: #1d6f42; color: white; border-color: #1d6f42; }
+    button.cloud:hover:not(:disabled) { background: #155331; }
+    button.active { background: #d9eae5; }
+    #status { font-size: 13px; font-weight: 600; color: #1d6f42; margin-left: 4px; }
+    progress { width: 100%; height: 10px; accent-color: #347b70; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; }
+    .nav a { color: #356b64; text-decoration: none; background: #edf4f1; padding: 5px 10px; border-radius: 6px; font-size: 14px; }
+    .nav a:hover { background: #dceae4; }
+    .hint { font-size: 13px; color: #62736e; }
+    .printval { display: none; }
+
+    /* 同仁名單標籤網格 */
+    .staff-box { margin-top: 16px; padding-top: 14px; border-top: 1px solid #e6ece9; }
+    .staff-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+    .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+    .staff-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 10px; border: 1px solid #c8d5d1; border-radius: 10px;
+      background: #f9fbfa; color: #233b39; font-size: 15px; font-weight: 600;
+    }
+    .staff-btn:hover { background: #e8f2ee; border-color: #8ab5aa; }
+    .staff-btn.selected {
+      background: #234e4a; color: #ffffff; border-color: #234e4a;
+      box-shadow: 0 2px 6px rgba(35, 78, 74, 0.25);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #cbd5e1; display: inline-block; flex-shrink: 0; }
+    .staff-btn.has-cloud .dot { background: #22c55e; }
+    .staff-btn.selected.has-cloud .dot { background: #86efac; }
+
+    dialog { border: none; border-radius: 14px; padding: 24px; max-width: 640px; width: 90%; box-shadow: 0 12px 32px rgba(0,0,0,0.18); }
+    dialog::backdrop { background: rgba(0,0,0,0.45); }
+
+    @media (max-width: 650px) {
+      .grid { grid-template-columns: 1fr; }
+      main { padding: 12px; }
+      section { padding: 15px; }
+    }
+    @page { size: A4; margin: 13mm; }
+    @media print {
+      body { background: white; color: #111; font-size: 10pt; }
+      main { max-width: none; padding: 0; }
+      header { background: white; color: #111; padding: 0; border-radius: 0; border-bottom: 2px solid #333; }
+      header p { color: #333; }
+      .bar, .nav, .hint, progress, #progressText, input, textarea, dialog, .staff-box { display: none !important; }
+      section { border: 0; padding: 0; margin: 12px 0; }
+      h2 { font-size: 14pt; break-after: avoid; }
+      h1 { font-size: 19pt; }
+      .question { break-inside: avoid; padding: 8px 0; }
+      .question h3 { font-size: 11pt; }
+      .printval { display: block; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 18px; border-bottom: 1px solid #ddd; padding: 3px 0; }
+      .grid { gap: 10px; }
+      .super, #summary { display: block !important; }
+      .super label { color: #333; }
+    }
+  </style>
+</head>
+<body data-mode="all">
+  <main>
+    <header>
+      <h1>年度考核暨面談紀錄</h1>
+      <p>同仁自評 · 主管回覆 · 年度發展規劃</p>
+    </header>
+
+    <div class="bar">
+      <button data-mode="all" class="active">完整編輯</button>
+      <button id="btnPaste">批次貼上回饋</button>
+      <button id="save">本機暫存</button>
+      <button id="export">匯出填答檔</button>
+      <button class="cloud" id="submitSheet">☁️ 儲存至 Google 試算表</button>
+      <button class="primary" id="pdf">匯出 PDF</button>
+      <button id="clear">清除畫面</button>
+      <span id="status" role="status"></span>
+    </div>
+
+    <section>
+      <h2>基本資料</h2>
+      <div class="grid" id="meta"></div>
+
+      <div class="staff-box">
+        <div class="staff-header">
+          <label style="margin:0;">點選評核人員（綠點表示雲端已有資料，點擊自動載入最新紀錄）：</label>
+          <button type="button" id="btnSyncCloud" style="padding:5px 10px; font-size:13px;">🔄 重新同步雲端狀態</button>
+        </div>
+        <div class="staff-grid" id="staffGrid"></div>
+      </div>
+
+      <p class="hint" style="margin-top:12px;">點選上方同仁姓名即可帶出雲端最新資料；編輯主管回覆後點擊「☁️ 儲存至 Google 試算表」即可同步更新。</p>
+      <progress id="progress" max="22" value="0"></progress>
+      <div id="progressText" class="hint"></div>
+    </section>
+
+    <nav class="nav" id="nav"></nav>
+    <div id="questions"></div>
+
+    <section id="summary">
+      <h2>主管綜合回饋與後續追蹤</h2>
+      <div id="extras"></div>
+    </section>
+  </main>
+
+  <dialog id="pasteModal">
+    <h2 style="margin-top:0">批次貼上同仁回饋</h2>
+    <p class="hint">將同仁填寫的 22 題回饋文字貼在下方（系統會依題號 1.~22. 或依序自動帶入同仁填答欄位）：</p>
+    <textarea id="rawPaste" rows="10" placeholder="請貼上同仁回饋內容..."></textarea>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
+      <button type="button" id="closePaste">取消</button>
+      <button type="button" class="primary" id="applyPaste">帶入欄位</button>
+    </div>
+  </dialog>
+
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxZjylQHLE8e0gpgiuP7niQe1eZB4cKW7pP5Jdj32uBoEU6kxDW9zkR9GLQ_dtrxr3_Q/exec';
+
+    const STAFF_LIST = [
+      '劉美', '毛舒', '劉翠', '趙苔', '林珈', '賴春', '朱恩',
+      '陳怡', '洪嘉', '戴紋', '賴秋', '王逸', '吳宜', '吳政',
+      '曾郁', '林姿', '王資', '江騏', '陳昱', '洪綵', '劉祈'
+    ];
+
+    const groups = [
+      ['目前工作', ['你認為目前擔任之工作是否適才適所？', '工作的「量」是否恰當？', '在執行工作時，你曾感到什麼困難？']],
+      ['工作希望', ['你認為比較適合哪方面的工作？', '你不適合哪方面的工作？', '其中最適合於你的工作是什麼？', '你對現在的工作（如異動等）有何希望？']],
+      ['薪資職位', ['你認為你的工作報酬是否合理？', '職位是否合理？', '職稱是否合理？', '理由何在？你的希望何在？', '其他醫院的待遇是多少？是哪家？是什麼工作？']],
+      ['教育訓練', ['你希望接受什麼項目的訓練？', '你對本院訓練的意見如何？']],
+      ['工作分配', ['你認為你的部門當中工作分配是否合理？', '什麼地方極待改進？']],
+      ['工作目標', ['你的工作目標是什麼？', '這個目標你已做到什麼程度？']],
+      ['特殊貢獻', ['你認為本年度對本院較特殊貢獻的工作是什麼？', '你做到什麼程度？']],
+      ['建議', ['在你擔任的工作中，你有什麼更好的構想？請具體說明：', '其他建議：']]
+    ];
+
+    const $ = id => document.getElementById(id);
+    const key = 'annual-review-v4';
+    let cloudEmployees = new Set();
+
+    function field(id, label, type = 'textarea', cls = '', defaultVal = '') {
+      const wrap = document.createElement('div');
+      wrap.className = cls;
+      const l = document.createElement('label');
+      l.htmlFor = id;
+      l.textContent = label;
+      const el = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+      el.id = id;
+      if (type !== 'textarea') el.type = type;
+      el.placeholder = type === 'date' ? '' : '請輸入' + label;
+      if (defaultVal) el.value = defaultVal;
+      const p = document.createElement('div');
+      p.className = 'printval';
+      wrap.append(l, el, p);
+      return wrap;
+    }
+
+    // 基本資料欄位（考核年度、同仁姓名、面談日期）
+    [
+      ['year', '考核年度', 'text', '115'],
+      ['name', '同仁姓名（可點選下方名單或手動輸入）', 'text', ''],
+      ['date', '面談日期', 'date', '']
+    ].forEach(x => $('meta').append(field(x[0], x[1], x[2], '', x[3])));
+
+    // 渲染 21 位同仁標籤按鈕
+    function renderStaffGrid() {
+      const grid = $('staffGrid');
+      const currentSelected = $('name').value.trim();
+      grid.innerHTML = '';
+      STAFF_LIST.forEach(person => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'staff-btn';
+        if (cloudEmployees.has(person)) btn.classList.add('has-cloud');
+        if (currentSelected === person) btn.classList.add('selected');
+        btn.innerHTML = `<span class="dot"></span><span>${person}</span>`;
+        btn.onclick = () => selectStaff(person);
+        grid.appendChild(btn);
+      });
+    }
+
+    // 產生 8 大面向與 22 題雙欄
+    groups.forEach(([name, qs], i) => {
+      const s = document.createElement('section');
+      s.id = 'g' + i;
+      const h = document.createElement('h2');
+      h.textContent = `${String(i + 1).padStart(2, '0')} ${name}`;
+      s.append(h);
+      const a = document.createElement('a');
+      a.href = '#' + s.id;
+      a.textContent = name;
+      $('nav').append(a);
+
+      qs.forEach((q, j) => {
+        const d = document.createElement('div');
+        d.className = 'question';
+        const t = document.createElement('h3');
+        t.textContent = `${j + 1}. ${q}`;
+        const g = document.createElement('div');
+        g.className = 'grid';
+        g.append(
+          field(`e${i}_${j}`, '同仁填答', 'textarea', 'employee'),
+          field(`m${i}_${j}`, '主管回覆', 'textarea', 'super')
+        );
+        d.append(t, g);
+        s.append(d);
+      });
+      $('questions').append(s);
+    });
+
+    // 主管綜合回饋欄位
+    [
+      ['overall', '主管綜合評語'],
+      ['action', '雙方共識及改善措施'],
+      ['support', '所需資源及主管支持']
+    ].forEach(x => $('extras').append(field(x[0], x[1], 'textarea')));
+
+    const fields = () => Array.from(document.querySelectorAll('main input:not([type=file]), main textarea'));
+    const getData = () => Object.fromEntries(fields().map(e => [e.id, e.value]));
+
+    function update() {
+      let e = 0, m = 0;
+      fields().forEach(x => {
+        if (x.nextElementSibling && x.nextElementSibling.classList.contains('printval')) {
+          x.nextElementSibling.textContent = x.value || '（未填寫）';
+        }
+        if (x.value.trim()) {
+          if (/^e\d/.test(x.id)) e++;
+          if (/^m\d/.test(x.id)) m++;
+        }
+      });
+      $('progress').value = e;
+      $('progressText').textContent = `同仁填答 ${e}/22 題 ｜ 主管回覆 ${m}/22 題`;
+    }
+
+    function clearFormExceptMeta(keepName = true) {
+      const currentName = $('name').value;
+      const currentYear = $('year').value || '115';
+      fields().forEach(x => {
+        if (x.id === 'year') x.value = currentYear;
+        else if (x.id === 'name') x.value = keepName ? currentName : '';
+        else x.value = '';
+      });
+      update();
+    }
+
+    function load(d) {
+      fields().forEach(x => {
+        if (typeof d[x.id] === 'string') x.value = d[x.id];
+      });
+      update();
+      renderStaffGrid();
+    }
+
+    function msg(t, isError = false) {
+      const el = $('status');
+      el.style.color = isError ? '#b91c1c' : '#1d6f42';
+      el.textContent = t;
+    }
+
+    document.addEventListener('input', (e) => {
+      update();
+      if (e.target && e.target.id === 'name') renderStaffGrid();
+    });
+
+    // 同步雲端已建檔名單（顯示綠色小圓點）
+    async function syncCloudEmployees() {
+      msg('⏳ 正在檢查雲端資料狀態...');
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=getEmployees&t=${Date.now()}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        const text = await res.text();
+        let json;
+        try {
+          json = JSON.parse(text);
+        } catch (parseErr) {
+          msg('❌ 後端回傳非 JSON 格式，請確認 Apps Script 已加入 doGet 並「建立新版本」部署', true);
+          return;
+        }
+
+        if (json.status === 'success') {
+          cloudEmployees = new Set((json.employees || []).map(n => String(n).trim()));
+          renderStaffGrid();
+          msg(`✅ 已連線雲端（試算表內共有 ${cloudEmployees.size} 筆人員紀錄）`);
+        } else {
+          msg('❌ 雲端回應錯誤：' + json.message, true);
+        }
+      } catch (err) {
+        console.error(err);
+        msg('❌ 無法連線至 Google Apps Script（請確認部署權限設為「所有人」）', true);
+      }
+    }
+
+    // 點選同仁姓名，自動帶出雲端最新資料
+    async function selectStaff(personName) {
+      $('name').value = personName;
+      renderStaffGrid();
+
+      const yearVal = $('year').value.trim();
+      msg(`⏳ 正在載入「${personName}」的雲端最新資料...`);
+
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=getLatestRecord&name=${encodeURIComponent(personName)}&year=${encodeURIComponent(yearVal)}&t=${Date.now()}`;
+        const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+        const text = await res.text();
+
+        let json;
+        try {
+          json = JSON.parse(text);
+        } catch (parseErr) {
+          msg('❌ 讀取失敗：Apps Script 尚未更新 doGet 或未重新建立新版本部署', true);
+          alert('無法解析雲端回傳資料，請確認 Apps Script 的 Code.gs 已包含 doGet() 並點選「管理部署作業 > 建立新版本」。');
+          return;
+        }
+
+        if (json.status === 'success' && json.record) {
+          clearFormExceptMeta(true);
+          load(json.record);
+          const timeNote = json.lastUpdated ? `（最後更新：${json.lastUpdated}）` : '';
+          msg(`✅ 已帶出「${personName}」最新雲端資料 ${timeNote}`);
+        } else if (json.status === 'success' && !json.record) {
+          clearFormExceptMeta(true);
+          msg(`ℹ️ 雲端目前尚無「${personName}」的資料，可直接填寫並儲存`);
+        } else {
+          msg('❌ 讀取錯誤：' + (json.message || '未知錯誤'), true);
+        }
+      } catch (err) {
+        console.error(err);
+        msg('❌ 網路請求失敗，請確認 Apps Script 部署設定為「所有人」可存取', true);
+      }
+    }
+
+    $('btnSyncCloud').onclick = syncCloudEmployees;
+
+    // 本機暫存
+    $('save').onclick = () => {
+      try {
+        localStorage.setItem(key, JSON.stringify(getData()));
+        msg('已暫存於本機');
+      } catch (e) {
+        msg('暫存失敗，請匯出填答檔', true);
+      }
+    };
+
+    // 匯出 JSON 填答檔
+    $('export').onclick = () => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify({ version: 4, answers: getData() }, null, 2)], { type: 'application/json' }));
+      a.download = `年度考核_${$('name').value || '未命名'}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      msg('已產生填答檔');
+    };
+
+    // 送出至 Google 試算表
+    $('submitSheet').onclick = async () => {
+      const nameVal = $('name').value.trim();
+      if (!nameVal) {
+        alert('請先點選或輸入「同仁姓名」再儲存！');
+        return;
+      }
+
+      const btn = $('submitSheet');
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '⏳ 雲端儲存中...';
+      msg('正在將資料寫入 Google 試算表...');
+
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'submitReview', answers: getData() })
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+          msg('✅ ' + result.message);
+          alert('成功！' + result.message);
+          cloudEmployees.add(nameVal);
+          renderStaffGrid();
+        } else {
+          msg('❌ 儲存失敗：' + result.message, true);
+          alert('儲存失敗：' + result.message);
+        }
+      } catch (err) {
+        console.error(err);
+        msg('❌ 網路或權限錯誤，請確認 Apps Script 部署設定', true);
+        alert('傳送發生錯誤，請確認 Apps Script 是否已建立新版本並部署為「所有人」可存取。');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    };
+
+    // 匯出 PDF
+    $('pdf').onclick = () => {
+      update();
+      window.print();
+    };
+
+    // 清除畫面
+    $('clear').onclick = () => {
+      if (confirm('確定清除畫面資料？已儲存至雲端或下載的檔案不受影響。')) {
+        clearFormExceptMeta(false);
+        renderStaffGrid();
+        try { localStorage.removeItem(key); } catch (e) {}
+        msg('已清除畫面');
+      }
+    };
+
+    // 批次貼上功能
+    $('btnPaste').onclick = () => $('pasteModal').showModal();
+    $('closePaste').onclick = () => $('pasteModal').close();
+    $('applyPaste').onclick = () => {
+      const text = $('rawPaste').value.trim();
+      if (!text) return;
+      const empIds = [];
+      groups.forEach(([_, qs], i) => qs.forEach((__, j) => empIds.push(`e${i}_${j}`)));
+
+      const blocks = text.split(/\n(?=\d+[\.\、\)]\s*)/).map(b => b.replace(/^\d+[\.\、\)]\s*.*?\n/, '').trim());
+      if (blocks.length >= 2) {
+        empIds.forEach((id, idx) => {
+          if (blocks[idx] !== undefined && $(id)) $(id).value = blocks[idx];
+        });
+      } else {
+        const lines = text.split(/\n+/).filter(Boolean);
+        empIds.forEach((id, idx) => {
+          if (lines[idx] !== undefined && $(id)) $(id).value = lines[idx];
+        });
+      }
+      update();
+      $('pasteModal').close();
+      msg('已批次帶入同仁回饋內容');
+    };
+
+    // 初始化
+    renderStaffGrid();
+    syncCloudEmployees();
+    update();
+  </script>
+</body>
+</html>
